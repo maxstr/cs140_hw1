@@ -27,23 +27,37 @@
 
 void Usage(char* prog_name);
 double f(double x);    /* Function we're integrating */
-void Trap(double a, double b, int n, double* global_result_p);
+double Trap(double a, double b, int n);
 
 int main(int argc, char* argv[]) {
    double  global_result = 0.0;  /* Store result in global_result */
    double  a, b;                 /* Left and right endpoints      */
    int     n;                    /* Total number of trapezoids    */
    int     thread_count;
+   double global_elapsed;
 
    if (argc != 2) Usage(argv[0]);
    thread_count = strtol(argv[1], NULL, 10);
    printf("Enter a, b, and n\n");
    scanf("%lf %lf %d", &a, &b, &n);
    if (n % thread_count != 0) Usage(argv[0]);
-#  pragma omp parallel num_threads(thread_count) 
-   Trap(a, b, n, &global_result);
+   global_result = 0.0;
+   global_elapsed = 0.0;
+#   pragma omp parallel num_threads(thread_count)
+   {
+       double my_time_initial, my_time_final, my_time_elapsed;
+       # pragma omp barrier
+       my_time_initial = omp_get_wtime();
+#   pragma omp critical
+	global_result += Trap(a, b, n); 
+       #pragma omp barrier
+       my_time_final = omp_get_wtime();
+       my_time_elapsed = my_time_final - my_time_initial;
+       #pragma omp critical
+       global_elapsed += my_time_elapsed;
+   }
 
-   printf("With n = %d trapezoids, our estimate\n", n);
+   printf("%f With n = %d trapezoids, our estimate\n", n, global_elapsed);
    printf("of the integral from %f to %f = %.14e\n",
       a, b, global_result);
    return 0;
@@ -85,7 +99,7 @@ double f(double x) {
  * Output arg:
  *    integral:  estimate of integral from a to b of f(x)
  */
-void Trap(double a, double b, int n, double* global_result_p) {
+double Trap(double a, double b, int n) {
    double  h, x, my_result;
    double  local_a, local_b;
    int  i, local_n;
@@ -103,6 +117,5 @@ void Trap(double a, double b, int n, double* global_result_p) {
    }
    my_result = my_result*h; 
 
-#  pragma omp critical 
-   *global_result_p += my_result; 
+   return my_result; 
 }  /* Trap */
