@@ -1,0 +1,34 @@
+5.1
+
+The source for this question is in the code zip as omp5.1.cpp.
+
+This macro simply tells us whether OPENMP is available to the compiler.
+
+5.2
+
+We show issues starting around 100 threads and 10k trapezoids.
+
+5.3
+
+Source for this question is in code zip as omp5.3.c
+
+c) With a single thread, we get a time of 0.001348. (trap_2 0.001290)
+
+d) With two threads, we get a time of 0.002703 (trap_2 0.001324)
+
+When using the block from the book in the modified code, we can only run a single Trap function at a time due to the addition being in a critical block. As such, it is essentially running serially even with two threads. For an execution such as this, the spawning of a new thread ends up slowing down the execution, which is why it is almost 2x slower with 2 threads. When we use Trap2, the trap function can execute in parallel so it is faster with two threads than with one.
+
+5.4
+
+&&: True
+|| : False 
+& : 1111 1111
+| : 0000 0000
+^: 0000 0000
+
+
+
+
+
+
+
