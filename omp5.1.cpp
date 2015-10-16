@@ -3,5 +3,5 @@
 #include <omp.h>
 
 int main(int argc, char* argv[]) {
-    printf("%s", _OPENMP);
+    printf("%d", _OPENMP);
 }
